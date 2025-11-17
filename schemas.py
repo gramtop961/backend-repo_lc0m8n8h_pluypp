@@ -12,7 +12,7 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List, Literal
 
 # Example schemas (replace with your own):
 
@@ -38,11 +38,34 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# AI builder specific schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant", "system"] = Field("user")
+    content: str
+
+class ChatRequest(BaseModel):
+    message: str
+    history: Optional[List[ChatMessage]] = None
+
+class ChatResponse(BaseModel):
+    reply: str
+
+class Generation(BaseModel):
+    """
+    Stores an app/website generation request
+    Collection name: "generation"
+    """
+    idea: str
+    features: Optional[List[str]] = None
+    status: Literal["planned", "building", "completed", "failed"] = "planned"
+    plan: Optional[dict] = None
+
+class PlanRequest(BaseModel):
+    idea: str
+    features: Optional[List[str]] = None
+
+class PlanResponse(BaseModel):
+    id: str
+    status: str
+    plan: dict
